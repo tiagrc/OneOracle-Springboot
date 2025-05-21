@@ -3,12 +3,16 @@ package dev.tiago.screenMatch.principal;
 import dev.tiago.screenMatch.model.DadosEpisodio;
 import dev.tiago.screenMatch.model.DadosSerie;
 import dev.tiago.screenMatch.model.DadosTemporada;
+import dev.tiago.screenMatch.model.Episodio;
 import dev.tiago.screenMatch.services.ConsumoApi;
 import dev.tiago.screenMatch.services.ConverteDados;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MenuPrincipal {
     private Scanner sc = new Scanner(System.in);
@@ -41,5 +45,21 @@ public class MenuPrincipal {
 //            }
 //        }
         temporadas.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
+
+        List<DadosEpisodio> dadosEpisodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream())
+                .collect(Collectors.toList());
+
+
+        System.out.println("\nTop 5 episodios!");
+        dadosEpisodios.stream().filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed()).limit(5).forEach(System.out::println);
+
+
+        Stream<Episodio> episodios = temporadas.stream().flatMap(t -> t.episodios().stream()
+                        .map(d -> new Episodio(t.nmrTemporada(), d)));
+
+        episodios.forEach(System.out::println);
+
     }
 }
