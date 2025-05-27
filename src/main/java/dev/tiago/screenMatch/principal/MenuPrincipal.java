@@ -3,9 +3,8 @@ package dev.tiago.screenMatch.principal;
 import dev.tiago.screenMatch.model.DadosSerie;
 import dev.tiago.screenMatch.model.DadosTemporada;
 import dev.tiago.screenMatch.model.Serie;
-import dev.tiago.screenMatch.services.ConsultaChatGPT;
-import dev.tiago.screenMatch.services.ConsumoApi;
-import dev.tiago.screenMatch.services.ConverteDados;
+import dev.tiago.screenMatch.service.ConsumoApi;
+import dev.tiago.screenMatch.service.ConverteDados;
 
 import java.util.ArrayList;
 import java.util.Comparator;

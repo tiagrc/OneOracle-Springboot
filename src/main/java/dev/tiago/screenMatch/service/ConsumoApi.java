@@ -1,4 +1,4 @@
-package dev.tiago.screenMatch.services;
+package dev.tiago.screenMatch.service;
 
 import java.io.IOException;
 import java.net.URI;

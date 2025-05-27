@@ -1,4 +1,4 @@
-package dev.tiago.screenMatch.services;
+package dev.tiago.screenMatch.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
