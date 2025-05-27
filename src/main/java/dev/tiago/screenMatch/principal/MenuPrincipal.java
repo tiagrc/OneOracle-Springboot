@@ -2,12 +2,16 @@ package dev.tiago.screenMatch.principal;
 
 import dev.tiago.screenMatch.model.DadosSerie;
 import dev.tiago.screenMatch.model.DadosTemporada;
+import dev.tiago.screenMatch.model.Serie;
+import dev.tiago.screenMatch.services.ConsultaChatGPT;
 import dev.tiago.screenMatch.services.ConsumoApi;
 import dev.tiago.screenMatch.services.ConverteDados;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class MenuPrincipal {
     private Scanner sc = new Scanner(System.in);
@@ -78,7 +82,11 @@ public class MenuPrincipal {
     }
 
     private void listarSeriesBuscadas(){
-        dadosSeries.forEach(System.out::println);
-    }
+        List<Serie> series = new ArrayList<>();
+        series =  dadosSeries.stream()
+                        .map(d -> new Serie(d))
+                                .collect(Collectors.toList());
 
+        series.stream().sorted(Comparator.comparing(Serie::getGenero)).forEach(System.out::println);
+    }
 }
