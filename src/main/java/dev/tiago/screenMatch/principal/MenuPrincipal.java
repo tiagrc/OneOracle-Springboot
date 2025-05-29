@@ -3,8 +3,10 @@ package dev.tiago.screenMatch.principal;
 import dev.tiago.screenMatch.model.DadosSerie;
 import dev.tiago.screenMatch.model.DadosTemporada;
 import dev.tiago.screenMatch.model.Serie;
+import dev.tiago.screenMatch.repository.SerieRepository;
 import dev.tiago.screenMatch.service.ConsumoApi;
 import dev.tiago.screenMatch.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +22,13 @@ public class MenuPrincipal {
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=94b4869b";
     private List<DadosSerie> dadosSeries = new ArrayList<>();
+
+
+    private SerieRepository repository;
+
+    public MenuPrincipal(SerieRepository repository) {
+        this.repository = repository;
+    }
 
     public void exibeMenu() {
 
@@ -48,6 +57,7 @@ public class MenuPrincipal {
                     break;
                 case 0:
                     System.out.println("Saindo da aplicação!");
+                    break;
                 default:
                     System.out.println("Opcao inválida.");
             }
@@ -56,7 +66,8 @@ public class MenuPrincipal {
 
     private void buscarNaWeb(){
         DadosSerie dados = getDadosSerie();
-        dadosSeries.add(dados);
+        Serie serie = new Serie(dados);
+        repository.save(serie);
         System.out.println(dados);
     }
 
@@ -81,10 +92,7 @@ public class MenuPrincipal {
     }
 
     private void listarSeriesBuscadas(){
-        List<Serie> series = new ArrayList<>();
-        series =  dadosSeries.stream()
-                        .map(d -> new Serie(d))
-                                .collect(Collectors.toList());
+        List<Serie> series = repository.findAll();
 
         series.stream().sorted(Comparator.comparing(Serie::getGenero)).forEach(System.out::println);
     }
