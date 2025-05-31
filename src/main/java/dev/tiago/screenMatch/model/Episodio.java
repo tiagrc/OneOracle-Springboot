@@ -1,17 +1,26 @@
 package dev.tiago.screenMatch.model;
 
-import org.springframework.cglib.core.Local;
+import jakarta.persistence.*;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+@Entity
+@Table(name = "episodios")
 public class Episodio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
     private Integer temporada;
     private String titulo;
     private Integer nmrEpisodio;
     private Double avaliacao;
     private LocalDate dataLancamento;
+
+    @ManyToOne
+    private Serie serie;
 
     public Episodio(Integer nmrTemporada, DadosEpisodio dadosEpisodio) {
         this.temporada = nmrTemporada;
@@ -24,6 +33,24 @@ public class Episodio {
         } catch (NumberFormatException | DateTimeParseException ex){
             this.avaliacao = 0.0;
         }
+    }
+
+    public Episodio(){}
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
     }
 
     public Integer getTemporada() {
