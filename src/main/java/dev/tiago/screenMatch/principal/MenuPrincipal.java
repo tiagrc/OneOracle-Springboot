@@ -1,9 +1,6 @@
 package dev.tiago.screenMatch.principal;
 
-import dev.tiago.screenMatch.model.DadosSerie;
-import dev.tiago.screenMatch.model.DadosTemporada;
-import dev.tiago.screenMatch.model.Episodio;
-import dev.tiago.screenMatch.model.Serie;
+import dev.tiago.screenMatch.model.*;
 import dev.tiago.screenMatch.repository.SerieRepository;
 import dev.tiago.screenMatch.service.ConsumoApi;
 import dev.tiago.screenMatch.service.ConverteDados;
@@ -34,9 +31,14 @@ public class MenuPrincipal {
         var opcao = -1;
         while (opcao != 0) {
             var menu = """
-                    1 - Buscar series
-                    2 - Buscar episodios
-                    3 - Listar series buscadas
+                    1 - Buscar séries
+                    2 - Buscar episódios
+                    3 - Listar séries buscadas
+                    4 - Buscar série por titulo
+                    5 - Buscar séries por ator/atriz
+                    6 - Top 5 séries
+                    7 - Buscar séries por categoria
+                    8 - Filtrar séries
                     
                     0 - Sair
                     """;
@@ -54,11 +56,25 @@ public class MenuPrincipal {
                 case 3:
                     listarSeriesBuscadas();
                     break;
+                case 4:
+                    buscarSeriePorTitulo();
+                    break;
+                case 5:
+                    buscarSeriesPorAtor();
+                    break;
+                case 6:
+                    BuscarTop5Series();
+                    break;
+                case 7:
+                    BuscarSeriesPorCategoria();
+                    break;
+                case 8:
+                    FiltrarSeriesPorTemporadaEAvaliacao();
                 case 0:
-                    System.out.println("Saindo da aplicação!");
+                    System.out.println("Saíndo da aplicação!");
                     break;
                 default:
-                    System.out.println("Opcao inválida.");
+                    System.out.println("Opção inválida.");
             }
         }
     }
@@ -80,11 +96,10 @@ public class MenuPrincipal {
 
     private void buscarEpisodioPorSerie() {
         listarSeriesBuscadas();
-        System.out.println("Escolha uma serie pelo nome.");
+        System.out.println("Escolha uma série pelo nome.");
         var nomeSerie = sc.nextLine();
 
-        Optional<Serie> serie = series.stream().filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
-                .findFirst();
+        Optional<Serie> serie = repository.findByTituloContainingIgnoreCase(nomeSerie);
 
         if (serie.isPresent()) {
             var serieEncontrada = serie.get();
@@ -103,12 +118,62 @@ public class MenuPrincipal {
             serieEncontrada.setEpisodios(episodios);
             repository.save(serieEncontrada);
         } else {
-            System.out.println("Esta serie ainda não esta em nosso banco de dados!");
+            System.out.println("Esta série ainda não esta em nosso banco de dados!");
         }
     }
     private void listarSeriesBuscadas(){
         series = repository.findAll();
 
         series.stream().sorted(Comparator.comparing(Serie::getGenero)).forEach(System.out::println);
+    }
+
+    private void buscarSeriePorTitulo() {
+        System.out.println("Escolha uma série pelo nome: ");
+        var buscarTitulo = sc.nextLine();
+
+        Optional<Serie> serieBuscada = repository.findByTituloContainingIgnoreCase(buscarTitulo);
+
+        if (serieBuscada.isPresent()){
+            System.out.println("Dados da série: " + serieBuscada.get());
+        }else {
+            System.out.println("Série não encontrada.");
+        }
+    }
+
+    private void buscarSeriesPorAtor() {
+        System.out.println("Digite o nome do ator/atriz: ");
+        var nomeAtor = sc.nextLine();
+        List<Serie> serieEncontrada = repository.findByAtoresContainingIgnoreCase(nomeAtor);
+        System.out.println("Séries produzidas pelo nome buscado: " + nomeAtor);
+        serieEncontrada.forEach(s -> System.out.println(s.getTitulo() + " - avaliação: " + s.getAvaliacao()));
+    }
+
+    private void BuscarTop5Series(){
+        List<Serie> serieTop = repository.findTop5ByOrderByAvaliacaoDesc();
+        serieTop.forEach(s -> System.out.println(s.getTitulo() + " - avaliação: " + + s.getAvaliacao()));
+    }
+
+    private void BuscarSeriesPorCategoria(){
+        System.out.println("Qual o gênero que você deseja buscar: ");
+        var nomeGenero = sc.nextLine();
+        Categoria categoria = Categoria.fromPortugues(nomeGenero);
+        List<Serie> seriesPorCategoria = repository.findByGenero(categoria);
+
+        System.out.println("Séries da da categoria " + nomeGenero);
+        seriesPorCategoria.forEach(System.out::println);
+    }
+
+    private void FiltrarSeriesPorTemporadaEAvaliacao(){
+        System.out.println("Filtrar por temporadas:  ");
+        var totalTemporadas = sc.nextInt();
+        sc.nextLine();
+        System.out.println("Avaliação a partir de: ");
+        var avaliacao = sc.nextDouble();
+        sc.nextLine();
+
+        List<Serie> filtroSeries = repository.seriesPorTemporadaEAvaliacao(totalTemporadas, avaliacao);
+        System.out.println("*** Séries filtradas ***");
+        filtroSeries.forEach(s ->
+                System.out.println(s.getTitulo() + " - avaliação: " + s.getAvaliacao() + " - contém: " + s.getTotalTemporadas() + " temporadas"));
     }
 }
